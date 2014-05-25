@@ -5,14 +5,14 @@
         <echo message="Creating log4j.properties" />
         <copy file="src/main/resources/log4j.properties.in" tofile="src/main/resources/log4j.properties" overwrite="true" />
         <replace file="src/main/resources/log4j.properties" propertyFile="some.properties">
-            <replacefilter token="@LogLevel@" property="logger.level" />
+            <replacefilter token="@logger.level@" property="logger.level" />
         </replace>
 
         <echo message="Creating web.xml" />
         <copy file="src/main/webapp/WEB-INF/web.xml.in" tofile="src/main/webapp/WEB-INF/web.xml" overwrite="true" />
         <replace file="src/main/webapp/WEB-INF/web.xml" propertyFile="some.properties">
             <replacefilter token="@application.name@" property="application.name" />
-            <replacefilter token="@expiration@" property="cache.expiration" />
+            <replacefilter token="@cache.expiration@" property="cache.expiration" />
         </replace>
 
     </target>
