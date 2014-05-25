@@ -1,0 +1,52 @@
+apply plugin: 'java'
+apply plugin: 'jetty'
+apply plugin: 'war'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.5'
+
+    testCompile 'junit:junit:4.11'
+}
+
+def buildProperties = new Properties()
+file("some.properties").withInputStream{
+    buildProperties.load(it);
+}
+
+task createConfigs() {
+    group 'Configuration'
+    description 'Generates all configuration files'
+
+    FileTree tree = fileTree(projectDir).include("**/*.in").exclude("classes/", "bin/")
+
+    tree.each { File source ->
+        File newFile = new File(source.parentFile, source.name.replaceAll("\\.in", ""))
+        def taskName = 'createConfig' + newFile.name.capitalize()
+
+        task(taskName) {
+            group 'Configuration'
+            description 'Generates configuration file from "' +
+                projectDir.toURI().relativize(source.toURI()) + '"'
+
+            inputs.file source
+            outputs.file newFile
+
+            doLast {
+                copy {
+                    from source
+                    into source.parentFile
+                    rename '(.+)*.in', '$1'
+                    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: buildProperties)
+                }
+            }
+        }
+
+        createConfigs.dependsOn(taskName)
+    }
+}
+
+war.dependsOn createConfigs
