@@ -21,13 +21,14 @@ task createConfigs() {
     group 'Configuration'
     description 'Generates all configuration files'
 
-    FileTree tree = fileTree(projectDir).include("**/*.in").exclude("classes/", "bin/")
+    FileTree sources = fileTree(projectDir).include("**/*.in")
+                                           .exclude("classes/", "bin/", "build/")
 
-    tree.each { File source ->
+    sources.each { File source ->
         File newFile = new File(source.parentFile, source.name.replaceAll("\\.in", ""))
         def taskName = 'createConfig' + newFile.name.capitalize()
 
-        task(taskName) {
+        task(taskName, type: Copy) {
             group 'Configuration'
             description 'Generates configuration file from "' +
                 projectDir.toURI().relativize(source.toURI()) + '"'
@@ -35,14 +36,10 @@ task createConfigs() {
             inputs.file source
             outputs.file newFile
 
-            doLast {
-                copy {
-                    from source
-                    into source.parentFile
-                    rename '(.+)*.in', '$1'
-                    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: buildProperties)
-                }
-            }
+            from source
+            into source.parentFile
+            rename '(.+)*.in', '$1'
+            filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: buildProperties)
         }
 
         createConfigs.dependsOn(taskName)
