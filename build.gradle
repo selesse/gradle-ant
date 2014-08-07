@@ -26,9 +26,10 @@ task createConfigs() {
 
     sources.each { File source ->
         File newFile = new File(source.parentFile, source.name.replaceAll("\\.in", ""))
-        def taskName = 'createConfig' + newFile.name.capitalize()
+        def createTaskName = 'createConfig' + newFile.name.capitalize()
+        def deleteTaskName = 'deleteConfig' + newFile.name.capitalize()
 
-        task(taskName, type: Copy) {
+        task(createTaskName, type: Copy) {
             group 'Configuration'
             description 'Generates configuration file from "' +
                 projectDir.toURI().relativize(source.toURI()) + '"'
@@ -42,7 +43,12 @@ task createConfigs() {
             filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: buildProperties)
         }
 
-        createConfigs.dependsOn(taskName)
+        task(deleteTaskName, type: Delete) {
+            delete newFile
+        }
+
+        createConfigs.dependsOn(createTaskName)
+        clean.dependsOn(deleteTaskName)
     }
 }
 
