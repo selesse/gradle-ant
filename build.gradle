@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.5'
+    compile 'org.slf4j:slf4j-log4j12:1.6.6'
 
     testCompile 'junit:junit:4.11'
 }
@@ -52,4 +52,4 @@ task createConfigs() {
     }
 }
 
-war.dependsOn createConfigs
+processResources.dependsOn createConfigs
