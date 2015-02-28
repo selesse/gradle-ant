@@ -63,3 +63,5 @@ task createConfigs() {
 }
 
 processResources.dependsOn createConfigs
+
+war.rootSpec.exclude '**/*.in'
